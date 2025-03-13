@@ -139,26 +139,20 @@ export default function Chat() {
             transition={{ duration: 0.5 }}
           >
             <motion.button
-              className="text-black text-lg "
+              className="text-white  text-lg "
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
               &#x2190;
             </motion.button>
             <div className="flex items-center gap-2">
-              <motion.div
-                className="w-8 h-8 bg-gray-300 rounded-full"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.3 }}
-              />
               <motion.span
-                className="text-lg font-semibold text-black"
+                className="text-lg font-semibold text-white"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.3 }}
               >
-                Name 
+                Conversation till now 
               </motion.span>
             </div>
             <motion.button
@@ -182,7 +176,7 @@ export default function Chat() {
                 transition={{ duration: 0.3 }}
               >
                 <span className={`text-sm flex-col w-fit max-w-xs p-2  rounded-3xl px-4 ${
-                  msg.from === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'
+                  msg.from === 'user' ? 'bg-[#007AFF] text-white' : 'bg-gray-200 text-black'
                 }`}>
                   {msg.text}
                 </span>
@@ -203,11 +197,11 @@ export default function Chat() {
                 />
                 <motion.button
                   onClick={sendMessageA}
-                  className="text-white bg-blue-600 hover:bg-blue-700 rounded-lg py-1 px-4 text-lg shadow-md"
+                  className="text-white bg-[#007AFF] hover:bg-blue-700 rounded-lg py-1 px-4 text-lg shadow-md"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  Send
+                  Add
                 </motion.button>
               </div>
               <div className="p-4 w-full border-t flex items-center bg-gray-50">
@@ -220,11 +214,11 @@ export default function Chat() {
                 />
                 <motion.button
                   onClick={sendMessageB}
-                  className="text-white bg-blue-600 hover:bg-blue-700 rounded-lg py-1 px-4 text-lg shadow-md"
+                  className="text-white bg-[#007AFF] hover:bg-blue-700 rounded-lg py-1 px-4 text-lg shadow-md"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  Send
+                  Add
                 </motion.button>
               </div>
             </div>
@@ -252,7 +246,7 @@ export default function Chat() {
               />
               <motion.button
                 onClick={sendMessageA}
-                className="text-white bg-blue-500 hover:bg-blue-600 rounded-full py-2 px-4 text-sm shadow-md"
+                className="text-white bg-[#007AFF] hover:bg-blue-600 rounded-full py-2 px-4 text-sm shadow-md"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
@@ -286,7 +280,7 @@ export default function Chat() {
                 onChange={(e) => setGoal(e.target.value)}
                 className="mt-1 w-[80%] px-3 py-2 text-black border rounded-lg text-sm focus:ring focus:ring-blue-300"
               />
-              <button className="text-white bg-blue-500 hover:bg-blue-800 rounded-lg w-fit px-5 text-sm">Set</button>
+              <button className="text-white bg-[#007AFF] hover:bg-blue-800 rounded-lg w-fit px-5 text-sm">Set</button>
             </div>
           </div>
           {/* Analysis Results section */}
@@ -297,11 +291,11 @@ export default function Chat() {
                 <div className="flex py-4 justify-center items-center">
                   <motion.button
                     onClick={handleSetExistingConversation}
-                    className="text-white bg-blue-500 hover:bg-blue-600 w-[90%] rounded-md py-2 px-4 text-sm shadow-md"
+                    className="text-white bg-[#007AFF] hover:bg-blue-600 w-[90%] rounded-md py-2 px-4 text-sm shadow-md"
                
                     whileTap={{ scale: 1.1 }}
                   >
-                    Set Existing Conversation
+                    Run Existing Conversation
                   </motion.button>
                 </div>
               ) : (
@@ -313,7 +307,7 @@ export default function Chat() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <span className="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs font-semibold">
+                    <span className="bg-[#007AFF] text-white px-3 py-1 rounded-lg text-xs font-semibold">
                       {result.score.toFixed(2)}
                     </span>
                     <p className="ml-3 text-xs text-gray-700">{result.option}</p>
@@ -324,7 +318,7 @@ export default function Chat() {
           </div>
           <div className="flex flex-col items-center space-y-4 p-4">
             <AnimatedGrid title="Conversational State Exploration" color="#007bff" animate={animate} />
-            <AnimatedGrid title="Monte Carlo Evaluation" color="#f4c20d" animate={animate} />
+            <AnimatedGrid title="Monte Carlo Simulation " color="#f4c20d" animate={animate} />
           </div>
         </div>
       </div>
