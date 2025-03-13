@@ -5,7 +5,7 @@ import io from "socket.io-client";
 
 const GRID_ROWS = 20;
 const GRID_COLS = 7;
-const socket = io('http://localhost:5000'); // Ensure this matches the backend port
+const socket = io('https://meresu-saleschat.onrender.com'); // Ensure this matches the backend port
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
