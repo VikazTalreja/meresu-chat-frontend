@@ -210,7 +210,7 @@ export default function Chat() {
                   </svg>
                   <h3 className="text-lg font-medium">Welcome to the Chat!</h3>
                   <p className="text-sm max-w-md">
-                    Start by adding messages in the input fields below. You can set a conversation goal in the right sidebar to guide the AI's responses.
+                    Start by adding messages in the input fields below. You can set a conversation goal in the right sidebar to guide the AI&apos;s responses.
                   </p>
                 </motion.div>
               </div>
