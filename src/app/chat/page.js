@@ -5,7 +5,7 @@ import io from "socket.io-client";
 
 const GRID_ROWS = 20;
 const GRID_COLS = 7;
-const socket = io('https://meresu-saleschat.onrender.com');  // Ensure this matches the backend port
+const socket = io('http://localhost:5000');  // Ensure this matches the backend port
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -430,9 +430,25 @@ function AnimatedGrid({ title, color, animate }) {
           [...Array(GRID_COLS)].map((_, col) => (
             <motion.div
               key={`${row}-${col}`}
-              className="w-3 h-3 rounded-full bg-gray-200"
-              animate={animate ? { backgroundColor: color } : {}}
-              transition={{ delay: (row * GRID_COLS + col) * 0.07, duration: 0.1 }}
+              className="w-3 h-3 rounded-full"
+              animate={animate ? 
+                { 
+                  backgroundColor: color,
+                  opacity: 1,
+                  scale: 1,
+                  transition: { 
+                    delay: (row * GRID_COLS + col) * 0.07,
+                    duration: 0.3,
+                    ease: "easeOut"
+                  }
+                } : 
+                { 
+                  backgroundColor: "rgb(229, 231, 235)",
+                  opacity: 1,
+                  scale: 0.8,
+                  transition: { duration: 0 }
+                }
+              }
             />
           ))
         ))}
@@ -442,26 +458,43 @@ function AnimatedGrid({ title, color, animate }) {
 }
 
 function RandomAnimatedGrid({ title, color1, color2, animate }) {
+  // Pre-calculate all colors once
+  const gridColors = [...Array(GRID_ROWS)].map(() => 
+    [...Array(GRID_COLS)].map(() => Math.random() > 0.5 ? color1 : color2)
+  );
+
   return (
     <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
       <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
         <span>{title}</span>
       </h3>
       <div className="grid grid-cols-20 gap-0.5">
-        {[...Array(GRID_ROWS)].map((_, row) => {
-          const numDots = GRID_COLS;
-          const colors = Array.from({ length: numDots }, () => Math.random() > 0.5 ? color1 : color2);
-          return (
-            [...Array(GRID_COLS)].map((_, col) => (
-              <motion.div
-                key={`${row}-${col}`}
-                className="w-3 h-3 rounded-full bg-gray-200"
-                animate={animate ? { backgroundColor: colors[col] } : {}}
-                transition={{ delay: Math.random() * 8, duration: 0.5 }}
-              />
-            ))
-          );
-        })}
+        {[...Array(GRID_ROWS)].map((_, row) => (
+          [...Array(GRID_COLS)].map((_, col) => (
+            <motion.div
+              key={`${row}-${col}`}
+              className="w-3 h-3 rounded-full"
+              animate={animate ? 
+                { 
+                  backgroundColor: gridColors[row][col],
+                  opacity: 1,
+                  scale: 1,
+                  transition: { 
+                    delay: Math.random() * 6,
+                    duration: 0.3,
+                    ease: "easeOut"
+                  }
+                } : 
+                { 
+                  backgroundColor: "rgb(229, 231, 235)",
+                  opacity: 1,
+                  scale: 0.8,
+                  transition: { duration: 0 }
+                }
+              }
+            />
+          ))
+        ))}
       </div>
     </div>
   );
