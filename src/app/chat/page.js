@@ -5,7 +5,9 @@ import io from "socket.io-client";
 
 const GRID_ROWS = 20;
 const GRID_COLS = 7;
-const socket = io('http://localhost:5000');  // Ensure this matches the backend port
+// Use the correct socket URL based on environment
+const socketURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+const socket = io(socketURL);  // Connect to the backend server
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -44,11 +46,38 @@ export default function Chat() {
     socket.on('chat-error', (error) => {
       console.error('Error from server:', error);
       setIsLoading(false);
+      // Show error in UI
+      alert(`Error: ${error.error}. ${error.details || ''}`);
     });
 
     socket.on('parsedoptions', (parsedOptions) => {
       console.log('Parsed options received:', parsedOptions);
-      setAnalysisResults(parsedOptions);
+      console.log('Parsed options type:', typeof parsedOptions);
+      console.log('Parsed options length:', parsedOptions ? parsedOptions.length : 0);
+      console.log('Is parsedOptions array?', Array.isArray(parsedOptions));
+      
+      if (parsedOptions && Array.isArray(parsedOptions) && parsedOptions.length > 0) {
+        setAnalysisResults(parsedOptions);
+        console.log('Analysis results updated with:', parsedOptions);
+      } else {
+        console.error('Invalid or empty parsedOptions received');
+        setAnalysisResults([]);
+      }
+      
+      setIsLoading(false);
+    });
+    
+    socket.on('debug-info', (info) => {
+      console.log('Debug info received:', info);
+    });
+    
+    socket.on('loading', () => {
+      console.log('Loading event received');
+      setIsLoading(true);
+    });
+    
+    socket.on('loaded', () => {
+      console.log('Loaded event received');
       setIsLoading(false);
     });
 
@@ -58,6 +87,9 @@ export default function Chat() {
       socket.off('chat-response');
       socket.off('chat-error');
       socket.off('parsedoptions');
+      socket.off('debug-info');
+      socket.off('loading');
+      socket.off('loaded');
     };
   }, []);
 
@@ -65,6 +97,12 @@ export default function Chat() {
   useEffect(() => {
     console.log('Context updated:', context);
   }, [context]);
+  
+  // Log analysisResults whenever they change
+  useEffect(() => {
+    console.log('Analysis results state updated:', analysisResults);
+    console.log('Analysis results length:', analysisResults.length);
+  }, [analysisResults]);
 
   const sendMessageA = () => {
     if (inputA.trim()) {
@@ -87,10 +125,17 @@ export default function Chat() {
 
   const handleSetExistingConversation = () => {
     if (context.length > 0) {
-      // Send both context and goal to the backend
-      socket.emit('chat-message', { messages: context, goal: goal });
+      // Send context, goal, and project/company context to the backend
+      socket.emit('chat-message', { 
+        messages: context, 
+        goal: goal,
+        projectContext: projectContext,
+        companyContext: companyContext
+      });
       console.log('Existing context set:', context);
       console.log('Goal sent:', goal);
+      console.log('Project context sent:', projectContext);
+      console.log('Company context sent:', companyContext);
       setIsLoading(true);
     } else {
       console.warn('No context to set');
@@ -358,9 +403,11 @@ export default function Chat() {
           {/* Analysis Results section */}
           <div className="space-y-3 pt-2">
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Analysis Results</h2>
+            {console.log('Rendering Analysis Results section, isLoading:', isLoading, 'analysisResults:', analysisResults)}
             <div className="space-y-2 mt-2 max-h-[200px] overflow-y-auto">
               {isLoading ? (
                 <div className="flex justify-center py-8">
+                  {console.log('Rendering loading state')}
                   <motion.div 
                     className="flex flex-col items-center space-y-2"
                     initial={{ opacity: 0 }}
@@ -376,6 +423,7 @@ export default function Chat() {
                 </div>
               ) : analysisResults.length === 0 ? (
                 <div className="flex py-6 justify-center items-center">
+                  {console.log('Rendering empty state (Run button)')}
                   <motion.button
                     onClick={handleSetExistingConversation}
                     className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm text-white shadow-md transition-colors flex items-center space-x-2"
@@ -389,20 +437,41 @@ export default function Chat() {
                   </motion.button>
                 </div>
               ) : (
-                analysisResults.map((result, index) => (
-                  <motion.div
-                    key={index}
-                    className="flex items-center p-3 border border-gray-100 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                  >
-                    <span className="bg-indigo-600 text-white px-2 py-1 rounded text-xs font-medium min-w-[40px] text-center">
-                      {result.score.toFixed(2)}
-                    </span>
-                    <p className="ml-3 text-sm text-gray-700">{result.option}</p>
-                  </motion.div>
-                ))
+                <>
+                  {console.log('Rendering analysis results items, count:', analysisResults.length)}
+                  {Array.isArray(analysisResults) && analysisResults.map((result, index) => {
+                    console.log(`Rendering result ${index}:`, result);
+                    if (!result) {
+                      console.error(`Result at index ${index} is undefined or null`);
+                      return null;
+                    }
+                    
+                    // Use default values if properties are missing
+                    const option = result.option || "No option text available";
+                    const score = typeof result.score === 'number' ? result.score : 0.5;
+                    
+                    return (
+                      <motion.div
+                        key={index}
+                        className="flex items-center p-3 border border-gray-100 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                      >
+                        <span className="bg-indigo-600 text-white px-2 py-1 rounded text-xs font-medium min-w-[40px] text-center">
+                          {typeof score === 'number' ? score.toFixed(2) : '0.50'}
+                        </span>
+                        <p className="ml-3 text-sm text-gray-700">{option}</p>
+                      </motion.div>
+                    );
+                  })}
+                  
+                  {(!Array.isArray(analysisResults) || analysisResults.length === 0) && (
+                    <div className="p-3 border border-gray-100 rounded-lg bg-white">
+                      <p className="text-sm text-gray-700">No analysis results available</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
